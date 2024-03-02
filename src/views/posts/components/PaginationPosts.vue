@@ -1,0 +1,67 @@
+<template>
+
+  <div class="demo-pagination-block">
+    <div class="demonstration">Change page size</div>
+    <el-pagination
+        :page-sizes="pagesSizeArray"
+        v-model:page-size="twoModel"
+        layout="sizes, prev, pager, next"
+        :total="postsLength"
+        pager-count="1"
+        @change="paginationFunc"
+    />
+  </div>
+
+</template>
+
+<script setup>
+import {onMounted, ref, watch} from "vue";
+import {PostsService} from "@/views/posts/services/Posts-service";
+
+let pagerCount = ref(1)
+let twoModel = ref(2)
+let postsLength = ref(7)
+let pagesSizeArray = ref([1, 2, 3, 4, 5])
+let postsPaginationData = ref({
+  pageNumber: 1, pageSize: 3
+})
+let emit = defineEmits(['getPosts'])
+let props = defineProps({
+      watch: Array,
+  twoModel: Number,
+
+    }
+)
+
+
+async function paginationFunc(pageNumber) {
+  postsPaginationData.value.pageSize = twoModel.value
+  postsPaginationData.value.pageNumber = pageNumber
+  // console.log(postsPaginationData.value)
+  emit('getPosts', postsPaginationData.value)
+}
+
+
+async function getPostLength() {
+  postsLength.value = await PostsService.getPostsLength()
+}
+
+onMounted(() => {
+  getPostLength(), paginationFunc(1)
+})
+
+
+watch(
+    () => props.watch,
+    () => getPostLength(),
+)
+watch(
+    () => props.twoModel,
+    () => pagerCount.value = 1
+)
+
+</script>
+
+<style scoped>
+
+</style>

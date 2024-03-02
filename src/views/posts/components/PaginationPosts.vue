@@ -7,7 +7,7 @@
         v-model:page-size="twoModel"
         layout="sizes, prev, pager, next"
         :total="postsLength"
-        pager-count="1"
+        v-model:current-page="pagerCount"
         @change="paginationFunc"
     />
   </div>

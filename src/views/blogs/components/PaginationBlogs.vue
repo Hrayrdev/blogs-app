@@ -5,6 +5,7 @@
     <el-pagination
         :page-sizes="pagesSizeArray"
         v-model:page-size="twoModel"
+        v-model:current-page="currentPage1"
         layout="sizes, prev, pager, next"
         :total="blogsLength"
         @change="paginationFunc"
@@ -17,16 +18,18 @@ import {onMounted, ref, watch} from "vue";
 import {BlogsService} from "@/views/blogs/services/Blogs-service";
 
 let props = defineProps({
-  watch: Array
-  })
+  watch: Array,
+  currentPage: Number
+})
+
 let emit = defineEmits(['getBlogs'])
 let twoModel = ref(2)
+const currentPage1 = ref(1)
 let blogsLength = ref(0)
 let blogsPaginationData = ref({
-  pageNumber:1, pageSize:3
+  pageNumber: 1, pageSize: 3
 })
-let pagesSizeArray = ref([1, 2, 3, 4,5])
-
+let pagesSizeArray = ref([1, 2, 3, 4, 5])
 
 
 async function paginationFunc(pageNumber) {
@@ -35,15 +38,19 @@ async function paginationFunc(pageNumber) {
   emit("getBlogs", blogsPaginationData.value)
 }
 
-async function getBlogsLength () {
+async function getBlogsLength() {
   blogsLength.value = await BlogsService.getBlogsLength()
 }
 
-onMounted(() =>{getBlogsLength(), paginationFunc(1)})
+onMounted(() => {
+  getBlogsLength(), paginationFunc(1)
+})
 
-
-watch(()=> props.watch,
-    ()=>{
+watch(() => props.currentPage,
+    ()=> currentPage1.value = 1
+)
+watch(() => props.watch,
+    () => {
       getBlogsLength()
     }
 )

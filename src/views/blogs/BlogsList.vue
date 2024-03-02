@@ -8,7 +8,7 @@
       <DeleteAll  @getBlogs="getBlogs"/>
     </el-col>
   </el-row>
-      <FilterBlogs   @getBlogs="filterBlogs"/>
+      <FilterBlogs   @getBlogs="((value)=>{filterBlogs(value), counter++})"/>
       <SearchBlogs  @searchBlogs='searchBlogs' @canselSearch="canselSearch" />
 
   <div v-if="blogs.length>0">
@@ -26,7 +26,7 @@
     </div>
   </div>
 
-  <PaginationBlogs  @getBlogs="getBlogs" :watch="blogs" />
+  <PaginationBlogs  @getBlogs="getBlogs" :watch="blogs" :currentPage="counter" />
 </template>
 
 <script setup>
@@ -46,7 +46,7 @@ import SearchBlogs from "@/views/blogs/components/SearchBlogs.vue";
 let blogs = ref([])
 const newBlogsName = ref('')
 const newBlogsDescription = ref('')
-
+const counter = ref(1)
 onMounted(() => {
   getBlogs()
 })

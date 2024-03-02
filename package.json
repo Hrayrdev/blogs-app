@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "deploy": "git add . && git commit -m 'deploy' && git push -u origin master"
+    "deploy": "git add . && git commit -m 'currentPage' && git push -u origin master"
   },
   "dependencies": {
     "core-js": "^3.8.3",

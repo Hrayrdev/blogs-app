@@ -26,16 +26,15 @@
                 post.likes
               }}
             </el-button>
-            <div v-for="user in post.likesId">
+            <div   v-for="user in post.newestLikes">
               <div v-if="user.event === LIKES_STATUSES.LIKE">
+
                 {{ user.name }}
               </div>
             </div>
 
           </div>
-<HRO>
-  HRO
-</HRO>
+
           <div>
 
             <el-button :type="`${post.dislikesInd ? 'danger'   : 'info'}`" style="padding: 50px"
@@ -43,11 +42,7 @@
                 post.dislikes
               }}
             </el-button>
-            <div v-for="user in post.likesId">
-              <div v-if="user.event === LIKES_STATUSES.DISLIKE">
-                {{ user.name }}
-              </div>
-            </div>
+
           </div>
 
         </div>
@@ -55,13 +50,12 @@
     </div>
     <div style="font-size: 30px;">{{ userName }}</div>
   </div>
-
-
+  <div v-for="name in onlyLikes">{{name.name}}</div>
 </template>
 
 <script setup>
 import InputFild from "@/components/input-fild.vue";
-import {ref} from "vue";
+import {computed, ref} from "vue";
 
 const LIKES_STATUSES = {LIKE: 'like', DISLIKE: 'dislike', NONE: 'none'}
 let userLogin = ref(false)
@@ -75,17 +69,44 @@ const users = ref([
   {name: 'Danil', id: 3},
 ])
 const posts = ref([
-  {title: 'Post1', likes: 0, dislikes: 0, id: Date.now(), likesId: [], likesInd: false, dislikesInd: false},
-  {title: 'Post2', likes: 0, dislikes: 0, id: Date.now(), likesId: [], likesInd: false, dislikesInd: false},
-  {title: 'Post3', likes: 0, dislikes: 0, id: Date.now(), likesId: [], likesInd: false, dislikesInd: false},
-  {title: 'Post4', likes: 0, dislikes: 0, id: Date.now(), likesId: [], likesInd: false, dislikesInd: false},
-  {title: 'Post5', likes: 0, dislikes: 0, id: Date.now(), likesId: [], likesInd: false, dislikesInd: false},
+  {title: 'Post1', likes: 0, dislikes: 0, id: Date.now(), likesId: [], likesInd: false, dislikesInd: false, newestLikes:[]},
+  {title: 'Post2', likes: 0, dislikes: 0, id: Date.now(), likesId: [], likesInd: false, dislikesInd: false, newestLikes:[]},
+  {title: 'Post3', likes: 0, dislikes: 0, id: Date.now(), likesId: [], likesInd: false, dislikesInd: false, newestLikes:[]},
+  {title: 'Post4', likes: 0, dislikes: 0, id: Date.now(), likesId: [], likesInd: false, dislikesInd: false, newestLikes:[]},
+  {title: 'Post5', likes: 0, dislikes: 0, id: Date.now(), likesId: [], likesInd: false, dislikesInd: false, newestLikes:[]},
 ])
 let usersId = ref('')
+let likesUser = ref([])
 
 function createUser() {
   users.value.push({name: newUserName.value, id: Date.now()})
   newUserName.value = ''
+}
+
+
+function likesIdSort(array) {
+
+  array.forEach((data) => {
+    let variable = 0
+    if (data.event === LIKES_STATUSES.LIKE) {
+      if (likesUser.value.length === 0) {
+
+      } else {
+
+        for (let i = 0; i < likesUser.value.length; i++) {
+          if (likesUser.value[i].id === data.id) {
+            variable = 1
+          }
+        }
+      }
+    }
+
+    if (variable === 0) {
+      likesUser.value.unshift(data)
+      console.log(likesUser.value)
+    }
+  })
+  return true
 }
 
 function updateLikeStatus(status, id) {
@@ -108,10 +129,17 @@ function updateLikeStatus(status, id) {
             if (status === post.likesId[i].event) {
               post.likes--
               post.likesId.splice(i, 1)
+              post.newestLikes=(post.likesId.filter(item => item.event === LIKES_STATUSES.LIKE)).slice(0,3)
+
+
             } else {
               post.likes++
               post.dislikes--
               post.likesId[i].event = LIKES_STATUSES.LIKE
+              let clone = JSON.parse(JSON.stringify(post.likesId[i]))
+              post.likesId.splice(i, 1)
+              post.likesId.unshift(clone)
+              post.newestLikes=(post.likesId.filter(item => item.event === LIKES_STATUSES.LIKE)).slice(0,3)
             }
           }
         }
@@ -125,12 +153,18 @@ function updateLikeStatus(status, id) {
               post.dislikes++
               post.likes--
               post.likesId[i].event = LIKES_STATUSES.DISLIKE
+              let clone = JSON.parse(JSON.stringify(post.likesId[i]))
+              post.likesId.splice(i, 1)
+              post.likesId.unshift(clone)
+              post.newestLikes=(post.likesId.filter(item => item.event === LIKES_STATUSES.LIKE)).slice(0,3)
+
             }
           }
         }
       }
     }
   } else {
+
     finalInspection(status, post)
   }
   examination()
@@ -141,10 +175,12 @@ function finalInspection(status, post) {
   let name = JSON.parse(JSON.stringify(userName.value))
   if (status === LIKES_STATUSES.LIKE) {
     post.likes += 1
-    post.likesId.push({name: name, id: usersId.value, event: LIKES_STATUSES.LIKE})
+    post.likesId.unshift({name: name, id: usersId.value, event: LIKES_STATUSES.LIKE})
+    post.newestLikes=(post.likesId.filter(item => item.event === LIKES_STATUSES.LIKE)).slice(0,3)
+
   } else if (status === LIKES_STATUSES.DISLIKE) {
     post.dislikes += 1
-    post.likesId.push({name: name, id: usersId.value, event: LIKES_STATUSES.DISLIKE})
+    post.likesId.unshift({name: name, id: usersId.value, event: LIKES_STATUSES.DISLIKE})
   }
 }
 

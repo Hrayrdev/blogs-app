@@ -33,7 +33,9 @@
             </div>
 
           </div>
-
+<HRO>
+  HRO
+</HRO>
           <div>
 
             <el-button :type="`${post.dislikesInd ? 'danger'   : 'info'}`" style="padding: 50px"

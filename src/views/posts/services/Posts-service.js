@@ -1,6 +1,8 @@
+import {API_URL} from "@/views/common/constants";
+
 export const PostsService = {
     blogId: '',
-    url: 'https://app-h4.vercel.app',
+    url: API_URL,
     pageNumber: null,
     pageSize: null,
     sortBy: '',
@@ -11,17 +13,14 @@ export const PostsService = {
         this.pageSize = pageSize ? pageSize : this.pageSize
         this.sortBy = sortBy ? sortBy : this.sortBy
         this.sortDirection = sortDirection ? sortDirection : this.sortDirection
-        console.log(this.pageSize,this.pageNumber,this.sortBy,this.sortDirection, 'THIS')
-        console.log(pageSize,pageNumber,sortBy,sortDirection)
         const response = await fetch(`${this.url}/posts?pageSize=${this.pageSize}&pageNumber=${this.pageNumber}&sortBy=${this.sortBy}&sortDirection=${this.sortDirection}`)
-
         await this.getPostsLength()
         return (await response.json()).items
 
     },
 
-    async getPostsLength() {
-        const response = await fetch(`${this.url}/posts`)
+    async getPostsLength(blogId) {
+        const response = await fetch(`${this.url}/blogs/${blogId}/posts`)
         return (await response.json()).items.length
     },
 

@@ -5,7 +5,10 @@
 
 import {ElNotification} from "element-plus";
 import {PostsService} from "@/views/posts/services/Posts-service";
+
 import {ref} from "vue";
+import {Service} from "@/views/common/Service";
+import {command} from "@/views/common/constants";
 let buttonPressed = ref(false)
 let props = defineProps({
   post:Object
@@ -13,7 +16,7 @@ let props = defineProps({
 let buttonType = ref("danger")
 
 let url = 'https://app-h4.vercel.app'
-const emits = defineEmits(['getBlogs'])
+const emits = defineEmits(['getPosts'])
 
 const buttons = [
   { type: 'danger', text: 'danger' },
@@ -42,7 +45,7 @@ async function deletePostFunc() {
 
   buttonPressed.value = true
 
-  await PostsService.deletePosts(props.post.id)
+  await  Service.doCommand(command.posts, command.delete, props.post.id)
     buttonPressed.value = false
 
     emits('getPosts' )

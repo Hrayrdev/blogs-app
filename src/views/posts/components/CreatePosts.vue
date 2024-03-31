@@ -23,7 +23,7 @@ let centerDialogVisible = ref(false)
 let newPostTitle = ref('')
 let newPostDescription = ref('')
 let newPostContent = ref('')
-const inputClass = ref(false)
+let inputClass = ref(false)
 let props = defineProps({
   blog: String
 })
@@ -76,7 +76,7 @@ async function createPost() {
       content: newPostContent.value,
       blogId: props.blog
     })
-
+    console.log(data)
     try {
       let s = {
         id: 1,

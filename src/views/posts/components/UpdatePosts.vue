@@ -23,6 +23,8 @@ import {ElNotification} from "element-plus";
 import InputFild from "@/components/input-fild.vue";
 import {ref, watch} from "vue";
 import {PostsService} from "@/views/posts/services/Posts-service";
+import {Service} from "@/views/common/Service";
+import {command} from "@/views/common/constants";
 let props = defineProps({
   post: Object
 })
@@ -81,7 +83,10 @@ async function updatePostFunc() {
       blogId: props.post.blogId
     })
     try {
-      await PostsService.updatePosts(data, props.post.id)
+      
+      await Service.doCommand(command.posts, command.update, data)
+
+      // await PostsService.updatePosts(data, props.post.id)
 
     } catch (error) {
       console.error('ОШИБКА:', error)

@@ -1,6 +1,6 @@
 <template>
   <div class="flex justify-space-between flex-wrap gap-4">
-    <el-button  :key="'Удалить'" :type="'danger'" link @click="adapter">
+    <el-button style="font-size: 18px;"  :key="'Удалить'" :type="'danger'" link @click="adapter">
       Удалить
     </el-button>
   </div>

@@ -1,20 +1,22 @@
 <template>
+
   <div style="display: flex; justify-content:center;">
     <el-button @click="showBlogs" type="primary">Вернуться к Блогам</el-button>
   </div>
   <el-row>
     <el-col :span="4">
-      <CreatePosts :blog="$route.params.blogId" @getPosts="getPosts"/>
+      <Create :blogId="$route.params.blogId" :createType="'posts'" :newItem="postRef" :fields="postFields"
+              @getPosts="getPosts" :open="'пост'" @clearText="clearText(postRef)"/>
     </el-col>
     <el-col :span="4">
       <FilterPosts @getPosts="((value)=>{filterPosts(value), counter++})"/>
     </el-col>
   </el-row>
-<!--    <SearchPosts @searchPosts="searchPosts" @canselSearch="canselSearch"/>-->
+  <!--    <SearchPosts @searchPosts="searchPosts" @canselSearch="canselSearch"/>-->
   <div v-for="post in posts">
-    <div class="post" v-if="post.blogId === $route.params.blogId">
+    <div class="post" v-if="post.blogId ===  $route.params.blogId">
       <div class="post-title">{{ post.title }}</div>
-      <div class="post-discritption">{{ post.shortDescription }}</div>
+      <div class="post-description">{{ post.shortDescription }}</div>
       <div class="post-content">{{ post.content }}</div>
       <div>
         <UpdatePosts :post="post" @getPosts="getPosts"/>
@@ -24,21 +26,24 @@
     </div>
   </div>
 
-  <PaginationPosts   @getPosts="getPosts" :watch="posts" :twoModel="counter"  />
+  <PaginationPosts @getPosts="getPosts" :blogId="$route.params.blogId"  :watch="posts" :twoModel="counter"/>
 </template>
 
 
 <script setup>
-import {onMounted, ref} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import router from "@/router";
 import UpdatePosts from "@/views/posts/components/UpdatePosts.vue";
 import DeletePosts from "@/views/posts/components/DeletePosts.vue";
-import CreatePosts from "@/views/posts/components/CreatePosts.vue";
-import {PostsService} from "@/views/posts/services/Posts-service";
 import PaginationPosts from "@/views/posts/components/PaginationPosts.vue";
 import FilterPosts from "@/views/posts/components/FilterPosts.vue";
 import {BlogsService} from "@/views/blogs/services/Blogs-service";
 import SearchPosts from "@/views/posts/components/SearchPosts.vue";
+import CreatePosts from "@/views/posts/components/CreatePosts.vue";
+import {PostsService} from "@/views/posts/services/Posts-service";
+import Create from "@/views/common/Create.vue";
+import {Service} from "@/views/common/Service";
+import {clearText, command} from "@/views/common/constants";
 
 const posts = ref([])
 let showContent = ref(false)
@@ -47,37 +52,50 @@ function showBlogs() {
   router.push('/blogs')
 }
 
+let protect = ref({lamp: 'dwadwa', pov: 'dadwadwa'})
 let counter = ref(0)
 let url = 'https://app-h4.vercel.app'
 let pageNumber = ref()
 let pageSize = ref()
-//
-// async function searchPosts(searchData){
-//   posts.value = await PostsService.getPosts(  undefined, undefined,undefined,undefined,  searchData)
-// }
-// async  function canselSearch(searchData){
-//
-//   posts.value = await PostsService.getPosts(  undefined, undefined,undefined,undefined,  searchData)
-// }
-
+let postFields = [
+  {
+    label: 'title',
+    placeholder: 'Название',
+  },
+  {
+    label: 'shortDescription',
+    placeholder: 'Описание',
+  },
+  {
+    label: 'content',
+    placeholder: 'Контент',
+  }
+]
+let postRef = reactive({
+  title: '',
+  shortDescription: '',
+  content: '',
+})
 
 async function filterPosts(filterData) {
-  // sortBy=undefined, sortDirection=undefined
-
-  posts.value = await PostsService.getPosts(  undefined, undefined,filterData.sortBy, filterData.sortDirection)
-
+  posts.value = await Service.doCommand(command.posts, command.get, filterData)
 }
 
-async  function getPosts(paginationData) {
+async function getPosts(paginationData) {
   if (paginationData) {
     pageNumber.value = paginationData.pageNumber
     pageSize.value = paginationData.pageSize
   }
 
-
-  posts.value = await PostsService.getPosts(pageNumber.value, pageSize.value)
+  posts.value = await Service.doCommand(command.posts, command.get, paginationData)
 }
 
+// function clearText() {
+//   console.log(4545)
+//   postRef.title = ''
+//   postRef.content = ''
+//   postRef.shortDescription = ''
+// }
 
 onMounted(() => getPosts())
 
@@ -101,7 +119,7 @@ onMounted(() => getPosts())
   margin-bottom: 15px;
 }
 
-.post-discritption {
+.post-description {
   display: flex;
   justify-content: center;
   margin-bottom: 15px;

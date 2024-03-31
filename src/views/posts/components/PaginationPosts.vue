@@ -1,5 +1,4 @@
 <template>
-
   <div class="demo-pagination-block">
     <div class="demonstration">Change page size</div>
     <el-pagination
@@ -17,6 +16,7 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import {PostsService} from "@/views/posts/services/Posts-service";
+import router from "@/router";
 
 let pagerCount = ref(1)
 let twoModel = ref(2)
@@ -25,11 +25,12 @@ let pagesSizeArray = ref([1, 2, 3, 4, 5])
 let postsPaginationData = ref({
   pageNumber: 1, pageSize: 3
 })
+let blogId
 let emit = defineEmits(['getPosts'])
 let props = defineProps({
       watch: Array,
-  twoModel: Number,
-
+      twoModel: Number,
+      blogId: String
     }
 )
 
@@ -37,13 +38,13 @@ let props = defineProps({
 async function paginationFunc(pageNumber) {
   postsPaginationData.value.pageSize = twoModel.value
   postsPaginationData.value.pageNumber = pageNumber
-  // console.log(postsPaginationData.value)
   emit('getPosts', postsPaginationData.value)
 }
 
 
 async function getPostLength() {
-  postsLength.value = await PostsService.getPostsLength()
+  console.log(blogId)
+  postsLength.value = await PostsService.getPostsLength(props.blogId)
 }
 
 onMounted(() => {
@@ -53,11 +54,25 @@ onMounted(() => {
 
 watch(
     () => props.watch,
-    () => getPostLength(),
+    () => {
+      getPostLength()
+
+    }
 )
 watch(
     () => props.twoModel,
-    () => pagerCount.value = 1
+    () => {
+      pagerCount.value = 1
+    }
+)
+watch(
+    () => props.blogId,
+    () => {
+      if (props.blogId) {
+        console.log(props.blogId)
+        blogId = props.blogId
+      }
+    }
 )
 
 </script>

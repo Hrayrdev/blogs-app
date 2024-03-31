@@ -1,5 +1,5 @@
 <template>
-  <el-button :key="'Удалить'" :type="'info'" link @click="updateModal = true; updateBlog = blog">
+  <el-button :key="'Удалить'" style="margin-right: 30px; font-size: 18px;" :type="'warning'" link @click="updateModal = true; updateBlog = blog">
     Редактировать
   </el-button>
   <el-dialog v-model="updateModal" title="" width="500" center>

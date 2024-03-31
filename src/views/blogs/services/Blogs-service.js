@@ -1,10 +1,15 @@
+import {API_URL} from "@/views/common/constants";
+
 export const BlogsService = {
-    url: 'https://app-h4.vercel.app',
+    url: 'https://app-h5-mu.vercel.app',
     pageNumber: null,
     pageSize: null,
     sortBy: '',
     sortDirection: '',
     searchData: '',
+
+
+
     async getBlogs(pageSize = undefined, pageNumber = undefined, sortBy = undefined, sortDirection = undefined, searchData = undefined) {
         this.pageNumber = pageNumber ? pageNumber : this.pageNumber
         this.pageSize = pageSize ? pageSize : this.pageSize

@@ -11,8 +11,7 @@
       <input-fild :class="{red: inputClass }" :placeholder="'Description'" v-model="newBlogsDescription"/>
     </div>
     <div class="dialog-footer">
-      <el-button plain :class='{pressed: pressedButton}' type="primary" @click="adapter"
-                 v-if="newBlogsName !=='' && newBlogsDescription.length>1 ">
+      <el-button plain :class='{pressed: pressedButton}' type="primary" @click="adapter">
         Confirm
       </el-button>
     </div>
@@ -63,7 +62,6 @@ async function createBlog() {
     inputClass.value = false
     centerDialogVisible.value = false
     pressedButton.value = true
-    let url = 'https://app-h4.vercel.app'
 
 
     const data = JSON.stringify({
@@ -89,7 +87,6 @@ async function createBlog() {
 watch(
     () => centerDialogVisible.value,
     () => {
-      inputClass.value = false
         newBlogsName.value = ''
         newBlogsDescription.value = ''
     }

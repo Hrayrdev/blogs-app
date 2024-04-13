@@ -1,5 +1,6 @@
 <template>
-  <el-button :key="'Удалить'" style="margin-right: 30px; font-size: 18px;" :type="'warning'" link @click="updateModal = true; updateBlog = blog">
+  <el-button :key="'Удалить'" style="margin-right: 30px; font-size: 18px;" :type="'warning'" link
+             @click="updateModal = true; updateBlog = blog">
     Редактировать
   </el-button>
   <el-dialog v-model="updateModal" title="" width="500" center>
@@ -22,6 +23,8 @@ import {ref, watch} from "vue";
 import InputFild from "@/components/input-fild.vue";
 import {ElNotification} from "element-plus";
 import {BlogsService} from "@/views/blogs/services/Blogs-service";
+import {useStore} from "vuex";
+import {command} from "@/views/common/constants";
 
 let url = 'https://app-h4.vercel.app'
 let props = defineProps({
@@ -36,6 +39,7 @@ const pressedButton = ref(false)
 const inputClass = ref(false)
 newBlogsName.value = props.blog.name
 newBlogsDescription.value = props.blog.description
+const store = useStore()
 
 async function adapter() {
   const isBlogCreated = await updateBlogFunc(updateBlog)
@@ -64,21 +68,24 @@ const open4 = () => {
   })
 }
 
-async function updateBlogFunc(blog) {
-  if (!pressedButton.value &&newBlogsName.value.length >3 && newBlogsDescription.value.length > 3 && newBlogsDescription.value.length < 500 && newBlogsName.value.length < 14 ) {
+async function updateBlogFunc() {
+  if (!pressedButton.value && newBlogsName.value.length > 3 &&
+      newBlogsDescription.value.length > 3 &&
+      newBlogsDescription.value.length < 500 && newBlogsName.value.length < 14) {
 
     inputClass.value = false
-
     updateModal.value = false;
     pressedButton.value = true
-
 
     const data = JSON.stringify({
       name: newBlogsName.value,
       description: newBlogsDescription.value,
       websiteUrl: "https://learn.javascript.ru.dfsdsf.com"
     })
-    await BlogsService.updateBlog(data, props.blog.id)
+    let dataAndCheckInfo = []
+    dataAndCheckInfo.push({type:command.blogs, action:command.update})
+    dataAndCheckInfo.push({data: data, id: props.blog.id})
+    await store.dispatch('queryChecking', dataAndCheckInfo)
 
     emit('getBlogs')
     newBlogsName.value = ''
@@ -86,25 +93,29 @@ async function updateBlogFunc(blog) {
 
     pressedButton.value = false
     return true
-  } else  if (!pressedButton.value){
+  } else if (!pressedButton.value) {
     inputClass.value = true
     return false
 
   }
 
 
-
-
 }
 
+function cansel() {
+  newBlogsName.value = props.blog.name
+  newBlogsDescription.value = props.blog.description
+}
 
-
-watch(() => props.blog,
+watch(() => updateModal.value,
     () => {
-      newBlogsName.value = props.blog.name
-      newBlogsDescription.value = props.blog.description
-    }
-)
+      if (updateModal.value) {
+        setTimeout(cansel, 10)
+      } else  {
+        setTimeout(cansel, 300)
+
+      }
+    })
 
 </script>
 

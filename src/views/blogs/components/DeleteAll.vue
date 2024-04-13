@@ -6,6 +6,8 @@
 
 <script setup>
 import {ElNotification} from "element-plus";
+import {BlogsService} from "@/views/blogs/services/Blogs-service";
+import {useStore} from "vuex";
 
 let url = 'https://app-h4.vercel.app'
 let emit = defineEmits(['getBlogs'])
@@ -29,17 +31,10 @@ async function adapter() {
   }
 }
 
+const store = useStore()
 
 async function deleteAll() {
-  const response = await fetch(`${url}/testing/all-data`, {
-        method: 'DELETE',
-        headers: {
-          "content-type": "application/json",
-          Authorization: 'Basic YWRtaW46cXdlcnR5'
-        }
-      }
-  )
-  const s = await response
+  await  store.dispatch('deleteAll')
   emit('getBlogs')
   return true
 }

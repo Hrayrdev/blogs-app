@@ -24,7 +24,7 @@ function searchBlog() {
 }
 function canselSearch() {
   searchData.value = ''
-  emit('canselSearch', {
+  emit('searchBlogs', {
     value: searchData.value,
     isSearch: true
   })

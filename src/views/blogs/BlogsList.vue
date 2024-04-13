@@ -3,7 +3,7 @@
   <el-row>
     <el-col :span="4">
       <!--      <CreateBlogs @getBlogs="getBlogs"/>-->
-      <Create @getBlogs="getBlogs"
+      <Create @getBlogs="getFBlogs"
               :newItem="blogRef"
               :createType="'blogs'"
               :fields="blogFields"
@@ -12,48 +12,46 @@
       />
     </el-col>
     <el-col :span="4">
-      <DeleteAll @getBlogs="getBlogs"/>
+      <DeleteAll @getBlogs="getFBlogs"/>
     </el-col>
   </el-row>
 
 
-  <FilterBlogs @getBlogs="((value)=>{filterBlogs(value), counter++})"/>
-  <SearchBlogs @searchBlogs='searchBlogs' @canselSearch="canselSearch"/>
+  <FilterBlogs @getBlogs="((value)=>{getFBlogs(value), counter++})"/>
+  <SearchBlogs @searchBlogs='getFBlogs'/>
+  <div v-if="getBlogs.length>0">
 
-  <div v-if="blogs.length>0">
-
-    <div v-for="blog in blogs" class="blog">
+    <div v-for="blog in getBlogs" class="blog">
       <div>
         <div class="blog-name" @click="showBlogPosts(blog)">Название:{{ blog.name }}</div>
         <div class="blog-description">Описание:{{ blog.description }}</div>
       </div>
 
       <div class="blog-btns">
-        <UpdateBlogs @getBlogs="getBlogs" :blog="blog"/>
-        <DeleteBlogs @getBlogs="getBlogs" :blog="blog"/>
+        <UpdateBlogs @getBlogs="getFBlogs" :blog="blog"/>
+        <DeleteBlogs @getBlogs="getFBlogs" :blog="blog"/>
       </div>
     </div>
   </div>
 
-  <PaginationBlogs @getBlogs="getBlogs" :watch="blogs" :currentPage="counter"/>
+  <PaginationBlogs @getBlogs="getFBlogs" :watch="getBlogs" :currentPage="counter"/>
 
 </template>
 
 <script setup>
-import {onMounted, reactive, ref} from "vue";
-
+import {computed, onMounted, reactive, ref} from "vue";
 import router from "@/router";
-import CreateBlogs from "@/views/blogs/components/CreateBlogs.vue";
 import UpdateBlogs from "@/views/blogs/components/UpdateBlogs.vue";
 import DeleteBlogs from "@/views/blogs/components/DeleteBlogs.vue";
 import DeleteAll from "@/views/blogs/components/DeleteAll.vue";
-import {BlogsService} from "@/views/blogs/services/Blogs-service";
 import PaginationBlogs from "@/views/blogs/components/PaginationBlogs.vue";
 import FilterBlogs from "@/views/blogs/components/FilterBlogs.vue";
 import SearchBlogs from "@/views/blogs/components/SearchBlogs.vue";
 import Create from "@/views/common/Create.vue";
-import {Service} from "@/views/common/Service";
-import {clearText} from "@/views/common/constants";
+import {clearText, command} from "@/views/common/constants";
+import { useStore} from "vuex";
+
+const store = useStore()
 
 let blogFields = [
   {
@@ -69,12 +67,13 @@ let blogFields = [
     placeholder: 'url',
   }
 ]
-let blogs = ref([])
 const newBlogsName = ref('')
 const newBlogsDescription = ref('')
 const counter = ref(1)
+
 onMounted(() => {
-  getBlogs()
+  store.commit('deleteComment', 23)
+  getFBlogs()
 })
 
 function showBlogPosts(blog) {
@@ -88,30 +87,26 @@ let blogRef = reactive({
 })
 let pageNumber = ref()
 let pageSize = ref()
-
+// let getData = reactive({
+//   pageSize: '',
+//   pageNumber: '',
 
 
 async function searchBlogs(searchData) {
-  blogs.value = await BlogsService.getBlogs(undefined, undefined, undefined, undefined, searchData)
-
+  // await store.dispatch('queryChecking', searchData)
+  await store.dispatch('incrementAction', searchData)
 }
 
-async function canselSearch(searchData) {
-  blogs.value = await BlogsService.getBlogs(undefined, undefined, undefined, undefined, searchData)
-}
 
 async function filterBlogs(filterData) {
-  blogs.value = await BlogsService.getBlogs(undefined, undefined, filterData.sortBy, filterData.sortDirection)
+  await store.dispatch('incrementAction', filterData)
 }
 
-async function getBlogs(paginationData) {
-  if (paginationData) {
-
-    pageNumber.value = paginationData.pageNumber
-    pageSize.value = paginationData.pageSize
-  }
-
-  blogs.value = await BlogsService.getBlogs(pageSize.value, pageNumber.value)
+async function getFBlogs(paginationData) {
+  let dataAndCheckInfo = []
+  dataAndCheckInfo.push({type:command.blogs, action:command.get})
+  dataAndCheckInfo.push(paginationData)
+  await store.dispatch('queryChecking', dataAndCheckInfo)
   newBlogsName.value = ''
   newBlogsDescription.value = ''
 
@@ -119,8 +114,11 @@ async function getBlogs(paginationData) {
 }
 
 onMounted(() => {
-  getBlogs()
+  getFBlogs()
 })
+
+const getBlogs = computed(() => store.getters.getBlogs)
+
 
 </script>
 

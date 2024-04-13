@@ -23,6 +23,7 @@ import {ref, watch} from "vue";
 import InputFild from "@/components/input-fild.vue";
 import {ElNotification} from "element-plus";
 import {BlogsService} from "@/views/blogs/services/Blogs-service";
+import {useStore} from "vuex";
 
 const centerDialogVisible = ref(false)
 const newBlogsName = ref('')
@@ -30,6 +31,7 @@ const newBlogsDescription = ref('')
 const emit = defineEmits(['getBlogs'])
 const pressedButton = ref(false)
 const inputClass = ref(false)
+const store = useStore()
 
 async function adapter() {
   const isBlogCreated = await createBlog()
@@ -69,7 +71,7 @@ async function createBlog() {
       description: newBlogsDescription.value,
       websiteUrl: "https://learn.javascript.ru.dfsdsf.com"
     })
-      await BlogsService.createBlog(data)
+    await store.dispatch('addBlogs', data)
     emit('getBlogs')
 
     pressedButton.value = false

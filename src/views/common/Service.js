@@ -6,10 +6,10 @@ export const Service = {
 
         switch (command) {
             case 'posts':
-
                 switch (subcommand) {
                     case 'create':
-                        await PostsService.createPosts(newItemData)
+                        // await store.dispatch('addPosts', {newItemData})
+                        // await PostsService.createPosts(newItemData)
                         break
                     case 'delete':
                         await PostsService.deletePosts(newItemData)

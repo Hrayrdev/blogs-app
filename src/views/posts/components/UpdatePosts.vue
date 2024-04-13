@@ -1,7 +1,10 @@
 <template>
-  <el-button  type="warning" link @click="centerDialogVisible = !centerDialogVisible">
-    Редактировать
-  </el-button>
+  <div>
+    <el-button v-if="responseRequest" type="warning" link @click="centerDialogVisible = !centerDialogVisible">
+      Редактировать
+    </el-button>
+  </div>
+
 
 
   <el-dialog v-model="centerDialogVisible" title="" width="500" center>
@@ -11,7 +14,7 @@
       <input-fild :class="{red: inputClass }" :placeholder="'Content'" v-model="newPostContent"/>
     </div>
     <div class="dialog-footer">
-      <el-button :type="`${!pressedButton ? 'primary' : 'info'}`" @click="adapter">Редактировать Пост</el-button>
+      <el-button v-if="checkForChange" :type="`${!pressedButton ? 'primary' : 'info'}`" @click="adapter">Редактировать Пост</el-button>
     </div>
   </el-dialog>
 
@@ -21,10 +24,11 @@
 
 import {ElNotification} from "element-plus";
 import InputFild from "@/components/input-fild.vue";
-import {ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {PostsService} from "@/views/posts/services/Posts-service";
 import {Service} from "@/views/common/Service";
 import {command} from "@/views/common/constants";
+import {useStore} from "vuex";
 let props = defineProps({
   post: Object
 })
@@ -34,21 +38,31 @@ let newPostTitle = ref('')
 let newPostDescription = ref('')
 let newPostContent = ref('')
 const inputClass = ref(false)
-
 newPostTitle.value = props.post.title
 newPostDescription.value =props.post.shortDescription
 newPostContent.value=props.post.content
 let url = 'https://app-h4.vercel.app'
 let emit = defineEmits(['getPosts'])
+let responseRequest = true
+ let  checkForChange = computed(()=>{
+    if (newPostTitle.value !== props.post.title ||
+        newPostDescription.value !== props.post.shortDescription ||
+        newPostContent.value !== props.post.content) {
+      return true
+    } else return false
+  })
 
 
 async function adapter() {
+  responseRequest = false
   const isBlogCreated = await updatePostFunc()
   if (isBlogCreated) {
     open1();
   } else if (isBlogCreated === false) {
     open4()
   }
+  responseRequest = true
+
 }
 
 const open1 = () => {
@@ -66,10 +80,13 @@ const open4 = () => {
     type: 'error',
   })
 }
-
+const store = useStore()
 
 async function updatePostFunc() {
-  if (!pressedButton.value && newPostTitle.value.length <= 30 && newPostDescription.value.length > 3 && newPostTitle.value.length > 3 && newPostDescription.value.length <= 30 && newPostContent.value.length <= 1000 && newPostContent.value.length > 3) {
+  if (!pressedButton.value && newPostTitle.value.length <= 30 &&
+      newPostDescription.value.length > 3 && newPostTitle.value.length > 3 &&
+      newPostDescription.value.length <= 30 && newPostContent.value.length <= 1000 &&
+      newPostContent.value.length > 3) {
 
     pressedButton.value = true
     inputClass.value = false
@@ -80,14 +97,16 @@ async function updatePostFunc() {
       title: newPostTitle.value,
       shortDescription: newPostDescription.value,
       content: newPostContent.value,
-      blogId: props.post.blogId
+      blogId: props.post.blogId,
     })
     try {
-      
-      await Service.doCommand(command.posts, command.update, data)
+      let dataAndCheckInfo = []
+      dataAndCheckInfo.push( { type:command.posts, action:command.update } )
+      dataAndCheckInfo.push( {data: data, id : props.post.id} )
 
+     await store.dispatch('queryChecking', dataAndCheckInfo)
+      // await Service.doCommand(command.posts, command.update, data)
       // await PostsService.updatePosts(data, props.post.id)
-
     } catch (error) {
       console.error('ОШИБКА:', error)
     }
@@ -102,14 +121,21 @@ async function updatePostFunc() {
   }
 }
 
+function cansel() {
+  newPostTitle.value = props.post.title
+  newPostDescription.value =props.post.shortDescription
+  newPostContent.value=props.post.content
+}
 
-watch(() => props.post,
-    () =>  {
-      newPostTitle.value = props.post.title
-      newPostDescription.value =props.post.shortDescription
-      newPostContent.value=props.post.content
-    }
-)
+watch(() => centerDialogVisible.value,
+    () => {
+      if (centerDialogVisible.value) {
+        setTimeout(cansel, 10)
+      } else  {
+        setTimeout(cansel, 300)
+
+      }
+    })
 
 </script>
 <style scoped>

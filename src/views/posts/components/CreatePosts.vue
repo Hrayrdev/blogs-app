@@ -76,7 +76,6 @@ async function createPost() {
       content: newPostContent.value,
       blogId: props.blog
     })
-    console.log(data)
     try {
       let s = {
         id: 1,

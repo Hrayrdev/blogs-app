@@ -43,7 +43,6 @@ async function paginationFunc(pageNumber) {
 
 
 async function getPostLength() {
-  console.log(blogId)
   postsLength.value = await PostsService.getPostsLength(props.blogId)
 }
 
@@ -69,7 +68,6 @@ watch(
     () => props.blogId,
     () => {
       if (props.blogId) {
-        console.log(props.blogId)
         blogId = props.blogId
       }
     }

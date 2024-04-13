@@ -6,32 +6,31 @@
   <el-row>
     <el-col :span="4">
       <Create :blogId="$route.params.blogId" :createType="'posts'" :newItem="postRef" :fields="postFields"
-              @getPosts="getPosts" :open="'пост'" @clearText="clearText(postRef)"/>
+              @getPosts="getPostsFunc" :open="'пост'" @clearText="clearText(postRef)"/>
     </el-col>
     <el-col :span="4">
       <FilterPosts @getPosts="((value)=>{filterPosts(value), counter++})"/>
     </el-col>
   </el-row>
   <!--    <SearchPosts @searchPosts="searchPosts" @canselSearch="canselSearch"/>-->
-  <div v-for="post in posts">
+  <div v-for="post in getPosts">
     <div class="post" v-if="post.blogId ===  $route.params.blogId">
       <div class="post-title">{{ post.title }}</div>
       <div class="post-description">{{ post.shortDescription }}</div>
       <div class="post-content">{{ post.content }}</div>
       <div>
-        <UpdatePosts :post="post" @getPosts="getPosts"/>
-        <DeletePosts :post="post" @getPosts="getPosts"/>
+        <UpdatePosts :post="post" @getPosts="getPostsFunc"/>
+        <DeletePosts :post="post" @getPosts="getPostsFunc"/>
       </div>
 
     </div>
   </div>
-
-  <PaginationPosts @getPosts="getPosts" :blogId="$route.params.blogId"  :watch="posts" :twoModel="counter"/>
+  <PaginationPosts @getPosts="getPostsFunc" :blogId="$route.params.blogId" :watch="getPosts" :twoModel="counter"/>
 </template>
 
 
 <script setup>
-import {onMounted, reactive, ref} from "vue";
+import {computed, onMounted, reactive, ref} from "vue";
 import router from "@/router";
 import UpdatePosts from "@/views/posts/components/UpdatePosts.vue";
 import DeletePosts from "@/views/posts/components/DeletePosts.vue";
@@ -40,12 +39,16 @@ import FilterPosts from "@/views/posts/components/FilterPosts.vue";
 import {BlogsService} from "@/views/blogs/services/Blogs-service";
 import SearchPosts from "@/views/posts/components/SearchPosts.vue";
 import CreatePosts from "@/views/posts/components/CreatePosts.vue";
-import {PostsService} from "@/views/posts/services/Posts-service";
 import Create from "@/views/common/Create.vue";
 import {Service} from "@/views/common/Service";
 import {clearText, command} from "@/views/common/constants";
+import {useStore} from "vuex";
+import {PostsService as params} from "@/views/posts/services/Posts-service";
+import {useRoute} from "vue-router";
 
-const posts = ref([])
+const store = useStore()
+
+// const posts = ref([])
 let showContent = ref(false)
 
 function showBlogs() {
@@ -77,28 +80,33 @@ let postRef = reactive({
   content: '',
 })
 
+const route = useRoute()
+onMounted(async () => {
+  await store.dispatch('getPosts', {"paginationData": 'sd'})
+})
+
+
 async function filterPosts(filterData) {
-  posts.value = await Service.doCommand(command.posts, command.get, filterData)
+  await store.dispatch('getPosts', filterData)
 }
 
-async function getPosts(paginationData) {
+async function getPostsFunc(paginationData) {
+  let dataAndCheckInfo = []
+  dataAndCheckInfo.push( { type:command.posts, action:command.get } )
+
   if (paginationData) {
-    pageNumber.value = paginationData.pageNumber
-    pageSize.value = paginationData.pageSize
-  }
+    paginationData.blogId = route.params.blogId
+    dataAndCheckInfo.push( paginationData),
 
-  posts.value = await Service.doCommand(command.posts, command.get, paginationData)
+    await store.dispatch('queryChecking', dataAndCheckInfo)
+  } else {
+    await store.dispatch('queryChecking', dataAndCheckInfo)
+
+    // await store.dispatch('getPosts')
+  }
 }
 
-// function clearText() {
-//   console.log(4545)
-//   postRef.title = ''
-//   postRef.content = ''
-//   postRef.shortDescription = ''
-// }
-
-onMounted(() => getPosts())
-
+const getPosts = computed(() => store.getters.getPosts)
 </script>
 
 

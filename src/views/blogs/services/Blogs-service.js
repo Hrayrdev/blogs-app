@@ -11,6 +11,7 @@ export const BlogsService = {
 
 
     async getBlogs(pageSize = undefined, pageNumber = undefined, sortBy = undefined, sortDirection = undefined, searchData = undefined) {
+        console.log(pageSize,pageNumber,sortBy,sortDirection,searchData)
         this.pageNumber = pageNumber ? pageNumber : this.pageNumber
         this.pageSize = pageSize ? pageSize : this.pageSize
         this.sortBy = sortBy ? sortBy : this.sortBy
@@ -43,6 +44,7 @@ export const BlogsService = {
         )
     },
     async updateBlog(data, id) {
+        console.log(data)
         const response = await fetch(`${this.url}/blogs/${id}`, {
                 method: 'PUT',
                 headers: {
@@ -63,6 +65,16 @@ export const BlogsService = {
             }
         )
 
+    },
+    async  deleteAll() {
+        const response = await fetch(`${this.url}/testing/all-data`, {
+                method: 'DELETE',
+                headers: {
+                    "content-type": "application/json",
+                    Authorization: 'Basic YWRtaW46cXdlcnR5'
+                }
+            }
+        )
     }
 
 

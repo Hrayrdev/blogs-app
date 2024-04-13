@@ -12,6 +12,8 @@
 import {ElNotification} from "element-plus";
 import {BlogsService} from "@/views/blogs/services/Blogs-service";
 import {ref} from "vue";
+import {useStore} from "vuex";
+import {command} from "@/views/common/constants";
 
 let url = 'https://app-h4.vercel.app'
 let props = defineProps({
@@ -35,23 +37,24 @@ const open1 = () => {
 
 async function adapter() {
   const isBlogCreated = await deleteBlogFunc()
-  console.log(isBlogCreated)
 
   if (isBlogCreated) {
     open1();
   }
 }
+const store = useStore()
 
 
 async function deleteBlogFunc() {
   if (!pressedButton.value) {
     pressedButton.value = true
-    await BlogsService.deleteBlog(props.blog.id)
+    let dataAndCheckInfo = []
+    dataAndCheckInfo.push({type:command.blogs, action:command.delete})
+    dataAndCheckInfo.push(props.blog.id)
+    await store.dispatch('queryChecking', dataAndCheckInfo)
     emit('getBlogs')
     pressedButton.value = false
-
     return true
-
   }
   pressedButton.value = false
 }

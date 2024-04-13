@@ -1,5 +1,6 @@
-export const API_URL = 'https://app-h5-mu.vercel.app'
+import {useStore} from "vuex";
 
+export const API_URL = 'https://app-h5-mu.vercel.app'
 // export const COMMAND= {
 export const command= {
     posts:'posts',

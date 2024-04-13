@@ -5,7 +5,7 @@
       placeholder="Select"
       size="large"
       style="width: 240px; margin-right: 100px"
-      @change="((value)=>{showFilter=  true; filter.sortBy = value; secondSelect ='Сортировать по:'})"
+      @change="change"
   >
     <el-option
         v-for="item in options"
@@ -17,31 +17,31 @@
 
   <el-select
 
-        v-if="showFilter"
-        v-model="secondSelect"
-        class="m-2"
-        placeholder="Select"
-        size="large"
-        style="width: 240px"
-        @change="filterFunc"
-    >
-      <el-option
-          v-for="item in sortSelect"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-      />
-    </el-select>
+      v-if="showFilter"
+      v-model="secondSelect"
+      class="m-2"
+      placeholder="Select"
+      size="large"
+      style="width: 240px"
+      @change="filterFunc"
+  >
+    <el-option
+        v-for="item in sortSelect"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+    />
+  </el-select>
 </template>
 
 <script setup>
 import {ref} from "vue";
 
-let firstSelect  = ref('Сортировать по:')
-let secondSelect  = ref('Сортировать по:')
+let firstSelect = ref('Сортировать по:')
+let secondSelect = ref('Сортировать по:')
 const options = [
   {
-    label:'Имени',
+    label: 'Имени',
     value: 'name',
 
   },
@@ -56,7 +56,7 @@ const options = [
 ]
 const sortSelect = [
   {
-    label:'Возрастанию',
+    label: 'Возрастанию',
     value: 'asc',
 
   },
@@ -66,14 +66,32 @@ const sortSelect = [
   },
 ]
 let showFilter = ref(false)
-const filter = ref({sortBy:'' , sortDirection: '' })
-let  emit= defineEmits(['getBlogs'])
+const filter = ref({sortBy: ''})
+let emit = defineEmits(['getBlogs'])
 
+async  function change(data) {
+  if (data === 'createdAt') {
+    if (filter.value.sortDirection){
+      delete  filter.value.sortDirection
+    }
+    filter.value.sortBy = data
+    showFilter = false
+   await filterFunc()
+  } else {
+    showFilter = true
+    filter.value.sortBy = data
+    secondSelect = 'Сортировать по:'
+  }
+}
 
-async  function filterFunc(sortDirection){
-  filter.value.sortDirection=sortDirection
-  emit("getBlogs",filter.value)
-
+async function filterFunc(sortDirection) {
+  console.log(filter.value)
+  if (sortDirection){
+    filter.value.sortDirection = sortDirection
+    emit("getBlogs", filter.value)
+  } else {
+    emit("getBlogs", filter.value)
+  }
 
 
 }

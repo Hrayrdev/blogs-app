@@ -7,7 +7,9 @@
 import {ref} from "vue";
 import {ElNotification} from "element-plus";
 import {UsersService} from "@/views/users/services/Users-service";
+import {useStore} from "vuex";
 
+const store = useStore()
 let buttonPressed = ref(false)
 let buttonType = ref("danger")
 let props = defineProps({
@@ -34,8 +36,7 @@ async function deleteUsersFunc() {
   if (!buttonPressed.value) {
 
     buttonPressed.value = true
-
-    await UsersService.deleteUsers(props.user.id)
+    await store.dispatch('deleteUsers', props.user.email)
     buttonPressed.value = false
 
     emit('getUsers' )

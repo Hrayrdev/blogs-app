@@ -4,7 +4,7 @@
   <el-dialog v-model="centerDialogVisible" title="" width="500" center>
     <div style="display: flex; flex-direction: column">
       <input-fild :class="{red: inputClass }" :placeholder="'Login'" v-model="newUserLogin"/>
-      <input-fild :class="{red: inputClass }" :placeholder="'Password'" v-model="newUserPassword"/>
+      <input-fild :class="{red: inputClass }" :placeholder="'Password'" v-model="newPassword"/>
       <input-fild :class="{red: inputClass }" :placeholder="'Email'" v-model="newUserEmail"/>
     </div>
     <div class="dialog-footer">
@@ -17,21 +17,27 @@
 
 <script setup>
 import InputFild from "@/components/input-fild.vue";
-import {ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {ElNotification} from "element-plus";
 import {UsersService} from "@/views/users/services/Users-service";
+import {useStore} from "vuex";
 
+const store = useStore()
 
-let centerDialogVisible =  ref(false)
+let centerDialogVisible = ref(false)
 let inputClass = ref(false)
 let newUserLogin = ref('')
-let newUserPassword = ref('')
+let newPassword = ref('')
 let newUserEmail = ref('')
 let emit = defineEmits(['getUsers'])
 
+onMounted(()=>{
+  store.dispatch('getUsers')
+
+})
 
 async function adapter() {
-  const isPostCreated = await createUser()
+  const isPostCreated =  createUser()
   if (isPostCreated) {
     open1()
   } else {
@@ -58,21 +64,25 @@ const open4 = () => {
 }
 
 
-
-async  function createUser() {
-  if (newUserLogin.value.length>3 && newUserLogin.value.length< 30 && newUserPassword.value.length > 6 && newUserPassword.value.length < 20  ) {
+ function createUser() {
+  if (newUserLogin.value.length > 3 &&
+      newUserLogin.value.length < 30 &&
+      newPassword.value.length > 6 &&
+      newPassword.value.length < 20) {
 
     inputClass.value = false
     centerDialogVisible.value = false
 
-    const data = JSON.stringify({
-          login: newUserLogin.value,
-          password: newUserPassword.value,
-          email: newUserEmail.value,
-
-    })
-
-    await UsersService.createUsers(data)
+    const data = {
+      login: newUserLogin.value,
+      password: newPassword.value,
+      email: newUserEmail.value,
+      friends: [],
+      yourRequestFriends: [],
+      requestFriendsForYou: [],
+    }
+    console.log(data)
+     store.dispatch('createUsers', data)
     emit('getUsers')
 
     return true
@@ -81,10 +91,18 @@ async  function createUser() {
   return false
 }
 
+function clearData() {
+  newUserLogin.value = ''
+  newUserEmail.value = ''
+  newPassword.value = ''
+}
 
 
-
-
+watch(() => centerDialogVisible.value,
+    () => {
+      clearData()
+    }
+)
 </script>
 
 <style scoped>

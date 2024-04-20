@@ -32,7 +32,6 @@ export const UsersService = {
     },
 
     async deleteUsers(id) {
-        console.log(id)
         const response = await fetch(`${this.url}/users/${id}`, {
                 method: 'DELETE',
                 headers: {

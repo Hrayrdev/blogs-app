@@ -1,62 +1,80 @@
 <template>
-  <el-row>
-    <el-col :span="4">
-      <CreateUsers @getUsers="getUsers"/>
+  <div v-if="store.getters.users.length>0" style="display: flex; justify-content: space-between">
+    <div>
 
-    </el-col>
-    <el-col :span="4">
-    </el-col>
-  </el-row>
-  <TestUsers @getUsers="getUsers"/>
-  <div v-loading="clas" style="width: 100%">
+      <div v-for="user in store.getters.users">
+        <div v-if="user.email !== $route.params.usersEmail" class="blog">
+          <div>
+            <div>Логин:{{ user.login }}</div>
+            <div>Почта:{{ user.email }}</div>
+          </div>
 
-  <div v-if="users.length>0">
+          <div v-if="positionAdmin">
+            <DeleteUsers :user="user" @getUsers="getUsers"/>
+          </div>
 
-    <div v-for="user in users" class="blog" >
-      <div>
-        <div  >Логин:{{ user.login }}</div>
-        <div >Почта:{{ user.email }}</div>
-      </div>
-
-      <div >
-        <DeleteUsers :user="user" @getUsers="getUsers"/>
+          <div>
+            <AddFriends :user="user"/>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+
+    <div >
+      <Notification />
+    </div>
   </div>
 </template>
 
 <script setup>
 
 import CreateUsers from "@/views/users/components/CreateUsers.vue";
-import {onMounted, ref} from "vue";
-import {UsersService} from "@/views/users/services/Users-service";
+import {computed, onMounted, ref, watch} from "vue";
 import DeleteUsers from "@/views/users/components/DeleteUsers.vue";
 import TestUsers from "@/views/users/components/TestUsers.vue";
+import {useStore} from "vuex";
+import {useRoute} from "vue-router";
+import AddFriends from "@/views/users/components/AddFriends.vue";
+import Notification from "@/views/users/components/Notification.vue";
 
 
-let users = ref([])
-let clas = ref(false)
-async  function  getUsers() {
-  users.value = []
-  clas.value = true
-  users.value = await UsersService.getUsers()
-  clas.value = false
-}
+const answer = true
 
-onMounted(()=> getUsers())
+const store = useStore()
+const route = useRoute()
+let positionAdmin = ref(false)
+
+const getUsers = computed(()=> store.getters.users)
+
+onMounted(() => {
+  // users.value = store.state.userStore.users
+  store.dispatch('getUsers')
+  store.getters.users.forEach((user) => {
+    if (user.email === route.params.usersEmail && user.position === 'Admin') {
+      positionAdmin.value = true
+    }
+  })
+
+
+  function checkFriends() {
+    console.log(route.params.userEmail)
+    return true
+  }
+
+
+})
+
 
 </script>
 
 
-
 <style scoped>
-.prm{
+.blog {
   width: 400px;
   height: 200px;
-  background-color: red;
 }
-.example-showcase .el-loading-mask {
-  z-index: 9;
+.notification{
+  margin-right: 200px;
 }
+
 </style>

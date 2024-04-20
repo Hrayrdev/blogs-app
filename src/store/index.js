@@ -5,6 +5,7 @@ import {BlogsService} from "@/views/blogs/services/Blogs-service";
 import { blogsStore} from "@/store/blogs";
 import {postStore} from "@/store/posts";
 import {command} from "@/store/command";
+import {userStore} from "@/store/userStore";
 export default createStore({
     state: {
     },
@@ -27,6 +28,7 @@ export default createStore({
         blogsStore: blogsStore,
         posts: postStore,
         command:command,
+        userStore:userStore,
 
     }
 

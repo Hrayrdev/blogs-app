@@ -6,6 +6,7 @@ import Likes from '@/views/likes/Likes.vue'
 import RegistrationMenuView from "@/views/users/views/RegistrationMenuView.vue";
 import StartMenuView from "@/views/users/views/StartMenuView.vue";
 import SignInView from "@/views/users/views/SignInView.vue";
+import ChatView from "@/views/users/views/ChatView.vue";
 
 const routes = [
     {
@@ -37,7 +38,7 @@ const routes = [
         component: RegistrationMenuView
     },
     {
-        path: '/users/:usersEmail',
+        path: '/users/:userId',
         name: 'Users',
         component: UsersList
     },
@@ -46,7 +47,11 @@ const routes = [
         name: 'SingIn',
         component: SignInView
     },
-
+    {
+        path: '/chat',
+        name: 'Chat',
+        component: ChatView,
+    },
 
 ]
 

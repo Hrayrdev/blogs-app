@@ -24,14 +24,13 @@
 
 </template>
 
-
 <script setup>
 
 import {computed, onMounted} from "vue";
 import {useStore} from "vuex";
 import {useRoute} from "vue-router"
 
-const getUsers = computed(() => store.getters.users)
+const getUsers = computed(() => store.getters.getUsers)
 
 const store = useStore()
 const route = useRoute()
@@ -41,7 +40,8 @@ let props = defineProps({
 
 
 const checkFriend = computed(() => {
-  let nowUser = getUsers.value.find((user) => user.email === route.params.usersEmail)
+  let nowUser = getUsers.value.find((user) => user.id === route.params.userId)
+
   for (let friend of nowUser.friends) {
     if (friend.email === props.user.email) {
       return 4
@@ -63,7 +63,7 @@ const checkFriend = computed(() => {
 
 function requestFriend() {
   getUsers.value.forEach((user) => {
-    if (user.email === route.params.usersEmail) {
+    if (user.id === route.params.userId) {
       store.dispatch('addFriends', {sender: user, recipient: props.user})
     }
   })
@@ -71,7 +71,7 @@ function requestFriend() {
 
 function acceptRequest() {
   getUsers.value.forEach((user) => {
-    if (user.email === route.params.usersEmail) {
+    if (user.id === route.params.userId) {
       store.dispatch('acceptRequestFriend', {sender: props.user.email, recipient: user.email})
     }
   })
@@ -79,7 +79,7 @@ function acceptRequest() {
 
 function deviationRequest(){
   getUsers.value.forEach((user) => {
-    if (user.email === route.params.usersEmail) {
+    if (user.id === route.params.userId) {
       store.dispatch('deviationRequestFriend', {sender: props.user.email, recipient: user.email})
     }
   })
@@ -87,7 +87,7 @@ function deviationRequest(){
 
 function deleteFriend(){
   getUsers.value.forEach((user) => {
-    if (user.email === route.params.usersEmail) {
+    if (user.id === route.params.userId) {
       store.dispatch('deleteFriend', {sender: props.user.email, recipient: user.email})
     }
   })

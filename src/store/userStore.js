@@ -1,7 +1,7 @@
 export const userStore = {
     state: {
         users: [],
-         // currentUser
+        // currentUser
     },
     mutations: {
         setUsers(state, payload) {
@@ -13,44 +13,19 @@ export const userStore = {
             localStorage.setItem('users', JSON.stringify(state.users))
         },
         doRequestFriends(state, payload) {
-            state.users.forEach((user) => {
-                if (user.email === payload.email) {
-                    user.yourRequestFriends.unshift(payload.recipient)
-                }
-            })
+            state.users = payload
             localStorage.setItem('users', JSON.stringify(state.users))
         },
         deleteRequestFriends(state, payload) {
-            state.users.forEach((user, index) => {
-                if (user.email === payload.email) {
-                    user.yourRequestFriends.forEach((request, index) => {
-                        if (request.email === payload.recipient.email) {
-                            user.yourRequestFriends.splice(index, 1)
-                        }
-                    })
-                }
-            })
+            state.users = payload
             localStorage.setItem('users', JSON.stringify(state.users))
         },
         addSubscriber(state, payload) {
-            state.users.forEach((user) => {
-                if (user.email === payload.email) {
-                    user.requestFriendsForYou.unshift(payload.sender)
-                }
-            })
+            state.users = payload
             localStorage.setItem('users', JSON.stringify(state.users))
         },
         deleteSubscriber(state, payload) {
-            state.users.forEach((user, index) => {
-                if (user.email === payload.email) {
-                    console.log(user.requestFriendsForYou)
-                    user.requestFriendsForYou.forEach((request, index) => {
-                        if (request.email === payload.sender.email) {
-                            user.requestFriendsForYou.splice(index, 1)
-                        }
-                    })
-                }
-            })
+            state.users = payload
             localStorage.setItem('users', JSON.stringify(state.users))
         },
 
@@ -84,28 +59,34 @@ export const userStore = {
         addFriends({state, commit}, payload) {
 
             state.users.forEach((user) => {
-                if (user.email === payload.sender.email) {
-                    for (let request of user.yourRequestFriends) {
-                        if (request.email === payload.recipient.email) {
-                            return commit('deleteRequestFriends', {email: user.email, recipient: payload.recipient})
-                        }
-                    }
-                    let recipient = JSON.parse(JSON.stringify(payload.recipient))
+                let users = JSON.parse(JSON.stringify(state.users))
 
+                if (user.email === payload.sender.email) {
+                    let request = user.yourRequestFriends.find((request) => request.email === payload.recipient.email)
+                    if (request) {
+                        let delUser = users.find((element) => element.email === user.email)
+                        let request = delUser.yourRequestFriends.findIndex((request) => request.email === payload.recipient.email)
+                        delUser.yourRequestFriends.splice(request, 1)
+                        return commit('deleteRequestFriends', users)
+                    }
+
+                    let recipient = JSON.parse(JSON.stringify(payload.recipient))
                     for (let i in recipient) {
-                        if (i !== 'email' && i !== 'login') {
+                        if (i !== 'email' && i !== 'login' ) {
                             delete recipient[i]
                         }
                     }
-                    console.log(222222)
-
-                    commit('doRequestFriends', {email: user.email, recipient: recipient})
+                    let doReqFriends = users.find((element)=> element.email === user.email)
+                    doReqFriends.yourRequestFriends.unshift(recipient)
+                    commit('doRequestFriends', users)
                 }
-                if (user.email === payload.recipient.email) { //find METHOD ARRAY
-                    for (let request of user.requestFriendsForYou) {
-                        if (request.email === payload.sender.email) {
-                            return commit('deleteSubscriber', {email: user.email, sender: payload.sender})//delete
-                        }
+                if (user.email === payload.recipient.email) { //find METHOD ARRAY\
+                    let request = user.requestFriendsForYou.find((request) => request.email === payload.sender.email)
+                    if (request) {
+                        let usersTest = users.find((usersTest) => usersTest.email === user.email)
+                        let request = usersTest.requestFriendsForYou.findIndex((request, num) => request.email === payload.sender.email)
+                        usersTest.requestFriendsForYou.splice(request, 1)
+                        return commit('deleteSubscriber', users)
                     }
                     let sender = JSON.parse(JSON.stringify(payload.sender))
 
@@ -114,9 +95,10 @@ export const userStore = {
                             delete sender[i]
                         }
                     }
-                    console.log(5456456456456546)
 
-                    commit('addSubscriber', {email: user.email, sender: sender})
+                    let addSubUser = users.find((element) => element.email === user.email)
+                    addSubUser.requestFriendsForYou.unshift(sender)
+                    commit('addSubscriber', users)
                 }
             })
         },
@@ -151,7 +133,6 @@ export const userStore = {
 
             recipient.requestFriendsForYou = recipient.requestFriendsForYou.filter((request) => request.email !== payload.sender)
 
-            // console.log(users)
             commit('setUsers', users)
         },
         deleteFriend({state, commit, dispatch}, payload) {
@@ -159,25 +140,23 @@ export const userStore = {
             let sender
             let recipient
             users.forEach((user) => {
-
                 if (user.email === payload.sender) {
                     user.friends = user.friends.filter((friend) => friend.email !== payload.recipient)
                     sender = user
                 }
                 if (user.email === payload.recipient) {
-
                     user.friends = user.friends.filter((friend) => friend.email !== payload.sender)
                     recipient = user
                 }
             })
+
             commit('setUsers', users)
-            dispatch('addFriends', {sender:sender, recipient: recipient})
-        }//|| user.email === payload.recipient
+            dispatch('addFriends', {sender: sender, recipient: recipient})
+        }
 
     },
     getters: {
-        users(state) {
-            // getUsers(state) {
+            getUsers(state) {
             return state.users
         }
     }

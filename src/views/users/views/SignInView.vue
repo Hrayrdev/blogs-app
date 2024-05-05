@@ -26,6 +26,7 @@ import router from "@/router";
 let inputClass = ref(false)
 let password = ref('')
 let userEmail = ref('')
+let userId = ref(52)
 let emit = defineEmits(['getUsers'])
 const store = useStore()
 
@@ -34,13 +35,14 @@ onMounted(() => {
 })
 
 function signIn() {
-  let answer = store.getters.users.filter((user) => {
+  let answer = store.getters.getUsers.filter((user) => {
     if (user.email === userEmail.value   && user.password === password.value) {
+      userId.value = user.id
       return true
     }
   })[0]
   if (answer){
-    router.push(`/users/${userEmail.value}`)
+    router.push(`/users/${userId.value}`)
   }
 }
 

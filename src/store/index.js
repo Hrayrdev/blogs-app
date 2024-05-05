@@ -6,6 +6,7 @@ import { blogsStore} from "@/store/blogs";
 import {postStore} from "@/store/posts";
 import {command} from "@/store/command";
 import {userStore} from "@/store/userStore";
+import {chatStore} from "@/store/chatStore";
 export default createStore({
     state: {
     },
@@ -29,6 +30,7 @@ export default createStore({
         posts: postStore,
         command:command,
         userStore:userStore,
+        chatStore:chatStore,
 
     }
 

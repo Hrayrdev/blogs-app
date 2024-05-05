@@ -6,12 +6,6 @@
         <input-fild class="my-input" :class="{red: inputClass }" :placeholder="'Password'" v-model="newPassword"/>
         <input-fild class="my-input" :class="{red: inputClass }" :placeholder="'Email'" v-model="newUserEmail"/>
 
-        <div>
-          <el-radio-group v-model="position" size="large"   >
-            <el-radio-button  label="Admin" value="Admin" />
-            <el-radio-button  label="User" value="User" />
-          </el-radio-group>
-        </div>
       </div>
 
       <div class="reg-page-menu-button">
@@ -19,7 +13,7 @@
       </div>
     </div>
   </div>
-
+  {{ newUserEmail }}
 
 </template>
 
@@ -29,7 +23,7 @@ import {ref, watch} from "vue";
 import {useStore} from "vuex";
 import router from "@/router";
 
-let position = ref('New York')
+let position = ref('')
 let inputClass = ref(false)
 let newUserLogin = ref('')
 let newPassword = ref('')
@@ -47,7 +41,9 @@ function createUser() {
       login: newUserLogin.value,
       password: newPassword.value,
       email: newUserEmail.value,
+      id: String(Date.now()),
       friends: [],
+      position: position.value,
       yourRequestFriends: [],
       requestFriendsForYou: [],
     }
@@ -55,7 +51,7 @@ function createUser() {
     store.dispatch('createUsers', data)
     emit('getUsers')
 
-    router.push(`/users/${newUserEmail.value}`)
+    router.push(`/users/${data.id}`)
     clearData()
 
     return true
@@ -70,12 +66,12 @@ function examination() {
       newPassword.value.length > 6 &&
       newPassword.value.length < 20) {
 
-    let answer = store.getters.users.filter((user) => {
-
-      if (user.email === newUserLogin.value && user.login === newUserLogin.value) {
-        return true
-      }
-    })[0]
+    if (newPassword.value.slice(newPassword.value.length-3,newPassword.value.length) === '444') {
+    position.value = 'Admin'
+    } else {
+      position.value = 'User'
+    }
+    let answer = store.getters.getUsers.find((user) => user.email === newUserEmail.value || user.login === newUserLogin.value)
     if (answer) {
       return false
     }

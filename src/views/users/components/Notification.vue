@@ -23,24 +23,13 @@ import AddFriends from "@/views/users/components/AddFriends.vue";
 const store = useStore()
 const route = useRoute()
 let userName = ref([])
-const getUsers = computed(() => store.getters.users)
+const getUsers = computed(() => store.getters.getUsers)
 
 
 const checkRequest = computed(num => {
 
-  let answer = getUsers.value.find((user) => user.email === route.params.usersEmail)
+  let answer = getUsers.value.find((user) => user.id === route.params.userId)
   return answer.requestFriendsForYou
-  // for (let i = 0; i < getUsers.value.length; i++) {
-  //   if (getUsers.value[i].email === route.params.usersEmail) {
-  //     return   getUsers.value[i].requestFriendsForYou
-  //   }
-  // }
-  // store.getters.users.forEach((user)=>{
-  //   if (user.email === route.params.usersEmail) {
-  //     console.log(45665456  )
-  //     return   user
-  //   }
-  // })
 })
 
 onMounted(() => {
